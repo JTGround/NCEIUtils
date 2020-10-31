@@ -26,6 +26,16 @@ class Station:
         self.wmo_id = wmo_id
 
 
+class Inventory:
+    def __init__(self, station_id, lat, lon, element, first_year, last_year):
+        self.station_id = station_id
+        self.lat = lat
+        self.lon = lon
+        self.element = element
+        self.first_year = first_year
+        self.last_year = last_year
+
+
 @unique
 class ClimateNetwork(Enum):
     NONE = "NONE"

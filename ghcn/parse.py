@@ -1,4 +1,4 @@
-from ghcn.types import State, Country, Station, ClimateNetwork
+from ghcn.types import State, Country, Station, ClimateNetwork, Inventory
 
 
 def parse_states(filepath):
@@ -39,7 +39,7 @@ def parse_stations(filepath):
         state = line[38:40].strip()
         if not state:
             state = None
-        name = line[40:70].strip()
+        name = line[41:71].strip()
         gsn = line[72:75].strip()
         if not gsn:
             gsn = None
@@ -51,9 +51,27 @@ def parse_stations(filepath):
             network_enum = ClimateNetwork.CRN
         else:
             network_enum.NONE
-        wmo_id = line[81:85].strip()
+        wmo_id = line[80:85].strip()
         if not wmo_id:
             wmo_id = None
         station = Station(station_id, lat, lon, elev, state, name, gsn, network_enum, wmo_id)
         stations.append(station)
     return stations
+
+
+def parse_inventory(filepath):
+    inventories = []
+
+    reader = open(filepath, 'r')
+    for line in reader:
+        station_id = line[0:11]
+        lat = float(line[12:20])
+        lon = float(line[21:30])
+        element = line[31:35]
+        first_year = int(line[36:40])
+        last_year = int(line[41:45])
+
+        inventory = Inventory(station_id, lat, lon, element, first_year, last_year)
+        inventories.append(inventory)
+    return inventories
+
