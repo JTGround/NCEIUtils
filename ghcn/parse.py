@@ -1,4 +1,5 @@
-from ghcn.types import State, Country, Station, ClimateNetwork, Inventory
+from ghcn.types import State, Country, Station, ClimateNetwork, Inventory, StationSource, \
+    StationSourceRanking
 
 
 def parse_states(filepath):
@@ -75,3 +76,23 @@ def parse_inventory(filepath):
         inventories.append(inventory)
     return inventories
 
+
+def parse_station_sources(filepath):
+    stations = []
+
+    reader = open(filepath, 'r')
+    for line in reader:
+        station_id = line[0:11]
+        num_sources = int(line[12:14])
+
+        sources = []
+        for src in range(0, num_sources):
+            base = 15 + (src * 14)
+            rank = src + 1
+            source_code = line[base:base + 1]
+            source_id = line[base + 2:base + 13]
+            sources.append(StationSource(rank, source_code, source_id))
+
+        station = StationSourceRanking(station_id, sources)
+        stations.append(station)
+    return stations
