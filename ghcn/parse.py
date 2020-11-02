@@ -1,5 +1,5 @@
 from ghcn.types import State, Country, Station, ClimateNetwork, Inventory, StationSource, \
-    StationSourceRanking
+    StationSourceRanking, DailyValue, ElementMonthlyRecord
 
 
 def parse_states(filepath):
@@ -96,3 +96,27 @@ def parse_station_sources(filepath):
         station = StationSourceRanking(station_id, sources)
         stations.append(station)
     return stations
+
+
+def parse_dly(filepath):
+    records = []
+
+    reader = open(filepath, 'r')
+    for line in reader:
+        station_id = line[0:11]
+        year = int(line[11:15])
+        month = int(line[15:17])
+        element = line[17:21]
+
+        values = []
+        for day in range(0, 31):
+            base = 21 + (day * 8)
+            val = line[base: base + 5]
+            m_flag = line[base + 5: base + 6]
+            q_flag = line[base + 6: base + 7]
+            s_flag = line[base + 7: base + 8]
+            daily_value = DailyValue(val, m_flag, q_flag, s_flag)
+            values.append(daily_value)
+        daily_record = ElementMonthlyRecord(station_id, year, month, element, values)
+        records.append(daily_record)
+    return records
