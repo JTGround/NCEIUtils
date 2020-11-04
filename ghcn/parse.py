@@ -112,6 +112,8 @@ def parse_dly(filepath):
         for day in range(0, 31):
             base = 21 + (day * 8)
             val = line[base: base + 5]
+            if val == -9999:
+                val = None
             m_flag = line[base + 5: base + 6]
             q_flag = line[base + 6: base + 7]
             s_flag = line[base + 7: base + 8]
