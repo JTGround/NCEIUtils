@@ -2,15 +2,16 @@ import os
 from ghcn.types import DailyValue, ElementMonthlyRecord
 
 
-def write_dly_csv(daily_records, target_path):
+def write_dly_csv(daily_records, target_path, append_if_null=True):
     # write flattened to csv
     file_append = open(target_path, 'a')
     try:
         for record in daily_records:
-            line = [record.station_id, str(record.year), str(record.month), str(record.date), str(record.element),
-                    str(record.val), str(record.m_flag), str(record.q_flag), str(record.s_flag)]
-            line_string = ",".join(line) + "\n"
-            file_append.write(line_string)
+            if record.val is not None or append_if_null is True:
+                line = [record.station_id, str(record.year), str(record.month), str(record.date), str(record.element),
+                        str(record.val), str(record.m_flag), str(record.q_flag), str(record.s_flag)]
+                line_string = ",".join(line) + "\n"
+                file_append.write(line_string)
     finally:
         file_append.close()
 

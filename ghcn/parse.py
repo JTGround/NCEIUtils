@@ -135,7 +135,7 @@ def parse_station_sources(source_path):
     return stations
 
 
-def parse_dly(source_path, append_if_null=True):
+def parse_dly(source_path):
     records = []
 
     if not os.path.exists(source_path):
