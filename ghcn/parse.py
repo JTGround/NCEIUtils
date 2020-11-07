@@ -151,18 +151,19 @@ def parse_dly(source_path):
             element = line[17:21]
 
             values = []
-            for day in range(0, 31):
-                base = 21 + (day * 8)
-                val = line[base: base + 5]
+            for index in range(0, 31):
+                date = index + 1
+                base = 21 + (index * 8)
+                val = line[base: base + 5].strip()
                 if val == -9999:
                     val = None
-                m_flag = line[base + 5: base + 6]
-                q_flag = line[base + 6: base + 7]
-                s_flag = line[base + 7: base + 8]
-                daily_value = DailyValue(val, m_flag, q_flag, s_flag)
+                m_flag = line[base + 5: base + 6].strip()
+                q_flag = line[base + 6: base + 7].strip()
+                s_flag = line[base + 7: base + 8].strip()
+                daily_value = DailyValue(val, date, m_flag, q_flag, s_flag)
                 values.append(daily_value)
-            daily_record = ElementMonthlyRecord(station_id, year, month, element, values)
-            records.append(daily_record)
+            monthly_record = ElementMonthlyRecord(station_id, year, month, element, values)
+            records.append(monthly_record)
     finally:
         file.close()
     return records
@@ -221,3 +222,4 @@ def combine_dly(source_path, target_path, delete_source=False):
                 print("Unable to delete file: path=" + source_path)
         else:
             print("File (path=" + source_path + ") does not exist.")
+
