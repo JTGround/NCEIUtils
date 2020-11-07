@@ -53,8 +53,7 @@ def convert_dly_to_csv(source_path, target_path, delete_source=False):
         for record in records:
             for element in record.daily_values:
                 line = [record.station_id, str(record.year), str(record.month), str(record.element),
-                        element.val,
-                        element.m_flag, element.q_flag, element.s_flag]
+                        element.val, element.m_flag, element.q_flag, element.s_flag]
                 line_string = ",".join(line) + "\n"
                 file_append.write(line_string)
     finally:

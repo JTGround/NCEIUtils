@@ -135,7 +135,7 @@ def parse_station_sources(source_path):
     return stations
 
 
-def parse_dly(source_path):
+def parse_dly(source_path, append_if_null=True):
     records = []
 
     if not os.path.exists(source_path):
@@ -154,7 +154,7 @@ def parse_dly(source_path):
             for index in range(0, 31):
                 date = index + 1
                 base = 21 + (index * 8)
-                val = line[base: base + 5].strip()
+                val = float(line[base: base + 5])
                 if val == -9999:
                     val = None
                 m_flag = line[base + 5: base + 6].strip()
