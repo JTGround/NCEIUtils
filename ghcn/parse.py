@@ -174,6 +174,7 @@ def combine_dly(source_path, target_path, delete_source=False):
         print('File (path=' + source_path + ') does not exist.')
         return
 
+    # read in text lines from source file
     lines = []
     file_read = open(source_path, 'r')
     try:
@@ -182,12 +183,36 @@ def combine_dly(source_path, target_path, delete_source=False):
     finally:
         file_read.close()
 
-        file_append = open(target_path, 'a')
+    # read in records from target file
+    key_set = set()
+    station_set = set()
+    file_append_initial = open(target_path, 'r')
     try:
-        file_append.writelines(lines)
+        for line in file_append_initial:
+            station_id = line[0:11]
+            station_set.add(station_id)
+
+            line_key = line[0:21]
+            key_set.add(line_key)
+    finally:
+        file_append_initial.close()
+
+    # write text lines to target file
+    file_append = open(target_path, 'a')
+    try:
+        for line in lines:
+            # check if dup station
+            station_id = line[0:11]
+            key = line[0:21]
+            if station_id not in station_set:
+                file_append.write(line)
+            else:
+                if key not in key_set:
+                    file_append.write(line)
     finally:
         file_append.close()
 
+    # delete the source file, if required
     if delete_source:
         if os.path.exists(source_path):
             try:
