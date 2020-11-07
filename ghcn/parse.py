@@ -1,124 +1,198 @@
 from ghcn.types import State, Country, Station, ClimateNetwork, Inventory, StationSource, \
     StationSourceRanking, DailyValue, ElementMonthlyRecord
+import os
 
 
-def parse_states(filepath):
+def parse_states(source_path):
     states = []
 
-    reader = open(filepath, 'r')
-    for line in reader:
-        abbrev = line[:2]
-        name = line[3:].rstrip()
-        state = State(abbrev, name)
-        states.append(state)
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return states
+
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            abbrev = line[:2]
+            name = line[3:].rstrip()
+            state = State(abbrev, name)
+            states.append(state)
+    finally:
+        file.close()
+
     return states
 
 
-def parse_countries(filepath):
+def parse_countries(source_path):
     countries = []
 
-    reader = open(filepath, 'r')
-    for line in reader:
-        abbrev = line[:2]
-        name = line[3:].rstrip()
-        cty = Country(abbrev, name)
-        countries.append(cty)
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return countries
+
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            abbrev = line[:2]
+            name = line[3:].rstrip()
+            cty = Country(abbrev, name)
+            countries.append(cty)
+    finally:
+        file.close()
     return countries
 
 
-def parse_stations(filepath):
+def parse_stations(source_path):
     stations = []
 
-    reader = open(filepath, 'r')
-    for line in reader:
-        station_id = line[0:11]
-        lat = float(line[12:20])
-        lon = float(line[21:30])
-        elev = float(line[31:37])
-        if elev == -999.9:
-            elev = None
-        state = line[38:40].strip()
-        if not state:
-            state = None
-        name = line[41:71].strip()
-        gsn = line[72:75].strip()
-        if not gsn:
-            gsn = None
-        network = line[76:79].strip()
-        network_enum = ClimateNetwork.NONE
-        if network == "HCN":
-            network_enum = ClimateNetwork.HCN
-        elif network == "CRN":
-            network_enum = ClimateNetwork.CRN
-        else:
-            network_enum.NONE
-        wmo_id = line[80:85].strip()
-        if not wmo_id:
-            wmo_id = None
-        station = Station(station_id, lat, lon, elev, state, name, gsn, network_enum, wmo_id)
-        stations.append(station)
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return stations
+
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            station_id = line[0:11]
+            lat = float(line[12:20])
+            lon = float(line[21:30])
+            elev = float(line[31:37])
+            if elev == -999.9:
+                elev = None
+            state = line[38:40].strip()
+            if not state:
+                state = None
+            name = line[41:71].strip()
+            gsn = line[72:75].strip()
+            if not gsn:
+                gsn = None
+            network = line[76:79].strip()
+            network_enum = ClimateNetwork.NONE
+            if network == "HCN":
+                network_enum = ClimateNetwork.HCN
+            elif network == "CRN":
+                network_enum = ClimateNetwork.CRN
+            else:
+                network_enum.NONE
+            wmo_id = line[80:85].strip()
+            if not wmo_id:
+                wmo_id = None
+            station = Station(station_id, lat, lon, elev, state, name, gsn, network_enum, wmo_id)
+            stations.append(station)
+    finally:
+        file.close()
     return stations
 
 
-def parse_inventory(filepath):
+def parse_inventory(source_path):
     inventories = []
 
-    reader = open(filepath, 'r')
-    for line in reader:
-        station_id = line[0:11]
-        lat = float(line[12:20])
-        lon = float(line[21:30])
-        element = line[31:35]
-        first_year = int(line[36:40])
-        last_year = int(line[41:45])
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return inventories
 
-        inventory = Inventory(station_id, lat, lon, element, first_year, last_year)
-        inventories.append(inventory)
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            station_id = line[0:11]
+            lat = float(line[12:20])
+            lon = float(line[21:30])
+            element = line[31:35]
+            first_year = int(line[36:40])
+            last_year = int(line[41:45])
+
+            inventory = Inventory(station_id, lat, lon, element, first_year, last_year)
+            inventories.append(inventory)
+    finally:
+        file.close()
     return inventories
 
 
-def parse_station_sources(filepath):
+def parse_station_sources(source_path):
     stations = []
 
-    reader = open(filepath, 'r')
-    for line in reader:
-        station_id = line[0:11]
-        num_sources = int(line[12:14])
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return stations
 
-        sources = []
-        for src in range(0, num_sources):
-            base = 15 + (src * 14)
-            rank = src + 1
-            source_code = line[base:base + 1]
-            source_id = line[base + 2:base + 13]
-            sources.append(StationSource(rank, source_code, source_id))
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            station_id = line[0:11]
+            num_sources = int(line[12:14])
 
-        station = StationSourceRanking(station_id, sources)
-        stations.append(station)
+            sources = []
+            for src in range(0, num_sources):
+                base = 15 + (src * 14)
+                rank = src + 1
+                source_code = line[base:base + 1]
+                source_id = line[base + 2:base + 13]
+                sources.append(StationSource(rank, source_code, source_id))
+
+            station = StationSourceRanking(station_id, sources)
+            stations.append(station)
+    finally:
+        file.close()
     return stations
 
 
-def parse_dly(filepath):
+def parse_dly(source_path):
     records = []
 
-    reader = open(filepath, 'r')
-    for line in reader:
-        station_id = line[0:11]
-        year = int(line[11:15])
-        month = int(line[15:17])
-        element = line[17:21]
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return records
 
-        values = []
-        for day in range(0, 31):
-            base = 21 + (day * 8)
-            val = line[base: base + 5]
-            if val == -9999:
-                val = None
-            m_flag = line[base + 5: base + 6]
-            q_flag = line[base + 6: base + 7]
-            s_flag = line[base + 7: base + 8]
-            daily_value = DailyValue(val, m_flag, q_flag, s_flag)
-            values.append(daily_value)
-        daily_record = ElementMonthlyRecord(station_id, year, month, element, values)
-        records.append(daily_record)
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            station_id = line[0:11]
+            year = int(line[11:15])
+            month = int(line[15:17])
+            element = line[17:21]
+
+            values = []
+            for day in range(0, 31):
+                base = 21 + (day * 8)
+                val = line[base: base + 5]
+                if val == -9999:
+                    val = None
+                m_flag = line[base + 5: base + 6]
+                q_flag = line[base + 6: base + 7]
+                s_flag = line[base + 7: base + 8]
+                daily_value = DailyValue(val, m_flag, q_flag, s_flag)
+                values.append(daily_value)
+            daily_record = ElementMonthlyRecord(station_id, year, month, element, values)
+            records.append(daily_record)
+    finally:
+        file.close()
     return records
+
+
+def combine_dly(source_path, target_path, delete_source=False):
+
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return
+
+    lines = []
+    file_read = open(source_path, 'r')
+    try:
+        for line in file_read:
+            lines.append(line)
+    finally:
+        file_read.close()
+
+        file_append = open(target_path, 'a')
+    try:
+        file_append.writelines(lines)
+    finally:
+        file_append.close()
+
+    if delete_source:
+        if os.path.exists(source_path):
+            try:
+                os.remove(source_path)
+            except IOError:
+                print("Unable to delete file: path=" + source_path)
+        else:
+            print("File (path=" + source_path + ") does not exist.")
