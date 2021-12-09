@@ -13,17 +13,6 @@ class Country:
         self.name = name
 
 
-class Station:
-    def __init__(self, station_id, lat, lon, elev, state, name, gsn, network, wmo_id):
-        self.station_id = station_id
-        self.lat = lat
-        self.lon = lon
-        self.elev = elev
-        self.state = state
-        self.name = name
-        self.gsn = gsn
-        self.network = network
-        self.wmo_id = wmo_id
 
 
 class Inventory:
@@ -78,6 +67,19 @@ class DailyValue:
         self.m_flag = m_flag
         self.q_flag = q_flag
         self.s_flag = s_flag
+
+
+class Station:
+    def __init__(self, station_id, lat, lon, elev, state, name, gsn, network, wmo_id):
+        self.station_id = station_id
+        self.lat = lat
+        self.lon = lon
+        self.elev = elev
+        self.state = state
+        self.name = name
+        self.gsn = gsn
+        self.network = network
+        self.wmo_id = wmo_id
 
 
 @unique

@@ -1,5 +1,5 @@
 import os
-from ghcn.types import DailyValue, ElementMonthlyRecord
+from ghcn.base_types import DailyValue, ElementMonthlyRecord
 
 
 def write_dly_csv(daily_records, target_path, append_if_null=True):

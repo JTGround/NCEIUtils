@@ -1,6 +1,7 @@
 import math
 
-from ghcn.types import Station
+from ghcn.base_types import Station
+
 
 
 def get_closest(stations, lat, lon):
@@ -12,7 +13,6 @@ def get_closest(stations, lat, lon):
             shortdist = dist
             short_station = v
     return short_station
-
 
 def get_dist_state(stations, state):
     distances = []

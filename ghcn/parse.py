@@ -1,26 +1,70 @@
-from ghcn.types import State, Country, Station, ClimateNetwork, Inventory, StationSource, \
-    StationSourceRanking, DailyValue, ElementMonthlyRecord
+from ghcn.base_types import State, Country, ClimateNetwork, Inventory, StationSource, \
+    StationSourceRanking, DailyValue, ElementMonthlyRecord, Station
 import os
 
 
-def parse_states(source_path):
-    states = []
+class Parser:
 
-    if not os.path.exists(source_path):
-        print('File (path=' + source_path + ') does not exist.')
+    @staticmethod
+    def read_states(source_path):
+        states = []
+
+        if not os.path.exists(source_path):
+            print('File (path=' + source_path + ') does not exist.')
+            return states
+
+        file = open(source_path, 'r')
+        try:
+            for line in file:
+                abbrev = line[:2]
+                name = line[3:].rstrip()
+                state = State(abbrev, name)
+                states.append(state)
+        finally:
+            file.close()
+
         return states
 
-    file = open(source_path, 'r')
-    try:
-        for line in file:
-            abbrev = line[:2]
-            name = line[3:].rstrip()
-            state = State(abbrev, name)
-            states.append(state)
-    finally:
-        file.close()
+    @staticmethod
+    def read_stations(source_path):
+        stations = []
 
-    return states
+        if not os.path.exists(source_path):
+            print('File (path=' + source_path + ') does not exist.')
+            return stations
+
+        file = open(source_path, 'r')
+        try:
+            for line in file:
+                station_id = line[0:11]
+                lat = float(line[12:20])
+                lon = float(line[21:30])
+                elev = float(line[31:37])
+                if elev == -999.9:
+                    elev = None
+                state = line[38:40].strip()
+                if not state:
+                    state = None
+                name = line[41:71].strip()
+                gsn = line[72:75].strip()
+                if not gsn:
+                    gsn = None
+                network = line[76:79].strip()
+                network_enum = ClimateNetwork.NONE
+                if network == "HCN":
+                    network_enum = ClimateNetwork.HCN
+                elif network == "CRN":
+                    network_enum = ClimateNetwork.CRN
+                else:
+                    network_enum.NONE
+                wmo_id = line[80:85].strip()
+                if not wmo_id:
+                    wmo_id = None
+                station = Station(station_id, lat, lon, elev, state, name, gsn, network_enum, wmo_id)
+                stations.append(station)
+        finally:
+            file.close()
+        return stations
 
 
 def parse_countries(source_path):
@@ -42,45 +86,6 @@ def parse_countries(source_path):
     return countries
 
 
-def parse_stations(source_path):
-    stations = []
-
-    if not os.path.exists(source_path):
-        print('File (path=' + source_path + ') does not exist.')
-        return stations
-
-    file = open(source_path, 'r')
-    try:
-        for line in file:
-            station_id = line[0:11]
-            lat = float(line[12:20])
-            lon = float(line[21:30])
-            elev = float(line[31:37])
-            if elev == -999.9:
-                elev = None
-            state = line[38:40].strip()
-            if not state:
-                state = None
-            name = line[41:71].strip()
-            gsn = line[72:75].strip()
-            if not gsn:
-                gsn = None
-            network = line[76:79].strip()
-            network_enum = ClimateNetwork.NONE
-            if network == "HCN":
-                network_enum = ClimateNetwork.HCN
-            elif network == "CRN":
-                network_enum = ClimateNetwork.CRN
-            else:
-                network_enum.NONE
-            wmo_id = line[80:85].strip()
-            if not wmo_id:
-                wmo_id = None
-            station = Station(station_id, lat, lon, elev, state, name, gsn, network_enum, wmo_id)
-            stations.append(station)
-    finally:
-        file.close()
-    return stations
 
 
 def parse_inventory(source_path):
