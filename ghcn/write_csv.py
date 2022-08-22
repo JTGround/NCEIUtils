@@ -71,3 +71,33 @@ def convert_dly_to_csv(source_path, target_path, delete_source=False):
             print("File (path=" + source_path + ") does not exist.")
 
     return records
+
+
+def convert_countries_csv(source_path, target_path, delete_source=False):
+
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return
+
+    try:
+        file = open(source_path, 'r')
+        file_append = open(target_path, 'a')
+
+        for line in file:
+            csv_line1 = line[:2] + ',' + line[3:]
+            file_append.write(csv_line1)
+    except IOError:
+        print("Unable to convert file: path=" + source_path)
+    finally:
+        file.close()
+        file_append.close()
+
+    # delete the source file, if required
+    if delete_source:
+        if os.path.exists(source_path):
+            try:
+                os.remove(source_path)
+            except IOError:
+                print("Unable to delete file: path=" + source_path)
+        else:
+            print("File (path=" + source_path + ") does not exist.")

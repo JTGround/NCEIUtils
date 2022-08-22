@@ -1,3 +1,5 @@
+import pandas
+
 from ghcn.base_types import State, Country, ClimateNetwork, Inventory, StationSource, \
     StationSourceRanking, DailyValue, ElementMonthlyRecord, Station
 import os
@@ -6,14 +8,14 @@ import os
 class Parser:
 
     @staticmethod
-    def read_states(source_path):
+    def read_states(filepath):
         states = []
 
-        if not os.path.exists(source_path):
-            print('File (path=' + source_path + ') does not exist.')
+        if not os.path.exists(filepath):
+            print('File (path=' + filepath + ') does not exist.')
             return states
 
-        file = open(source_path, 'r')
+        file = open(filepath, 'r')
         try:
             for line in file:
                 abbrev = line[:2]
@@ -24,6 +26,30 @@ class Parser:
             file.close()
 
         return states
+
+    @staticmethod
+    def read_states_df(filepath):
+        states = []
+
+        if not os.path.exists(filepath):
+            print('File (path=' + filepath + ') does not exist.')
+            return None
+
+        cols = [(0, 2), (3, 50)]
+        df = pandas.read_fwf(filepath, skiprows=36, skipfooter=5, colspecs=cols, index_col=False,
+             names=['name', 'state'])
+        return df
+
+    @staticmethod
+    def read_stations_df(source_path):
+        if not os.path.exists(source_path):
+            print('File (path=' + source_path + ') does not exist.')
+            return None
+
+        cols = [(0, 11), (12, 20), (21, 30), (31, 37), (38, 40), (41, 71), (41, -1)]
+        df = pandas.read_fwf(source_path, skiprows=36, skipfooter=5, colspecs=cols, index_col=False,
+             names=['station_id', 'lat', 'lon', 'elev', 'state', 'name'])
+        return df
 
     @staticmethod
     def read_stations(source_path):
@@ -66,26 +92,24 @@ class Parser:
             file.close()
         return stations
 
+    @staticmethod
+    def parse_countries(source_path):
+        countries = []
 
-def parse_countries(source_path):
-    countries = []
+        if not os.path.exists(source_path):
+            print('File (path=' + source_path + ') does not exist.')
+            return countries
 
-    if not os.path.exists(source_path):
-        print('File (path=' + source_path + ') does not exist.')
+        file = open(source_path, 'r')
+        try:
+            for line in file:
+                abbrev = line[:2]
+                name = line[3:].rstrip()
+                cty = Country(abbrev, name)
+                countries.append(cty)
+        finally:
+            file.close()
         return countries
-
-    file = open(source_path, 'r')
-    try:
-        for line in file:
-            abbrev = line[:2]
-            name = line[3:].rstrip()
-            cty = Country(abbrev, name)
-            countries.append(cty)
-    finally:
-        file.close()
-    return countries
-
-
 
 
 def parse_inventory(source_path):
@@ -175,7 +199,6 @@ def parse_dly(source_path):
 
 
 def combine_dly(source_path, target_path, delete_source=False):
-
     if not os.path.exists(source_path):
         print('File (path=' + source_path + ') does not exist.')
         return
@@ -227,4 +250,3 @@ def combine_dly(source_path, target_path, delete_source=False):
                 print("Unable to delete file: path=" + source_path)
         else:
             print("File (path=" + source_path + ") does not exist.")
-
