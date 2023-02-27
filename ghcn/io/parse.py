@@ -1,118 +1,116 @@
 import pandas
 
-from ghcn.base_types import State, Country, ClimateNetwork, Inventory, StationSource, \
-    StationSourceRanking, DailyValue, ElementMonthlyRecord, Station
+from ghcn.types.stations import Station, Country, Inventory, StationSourceRanking, StationSource, State
+from ghcn.types.records import ClimateNetwork, DailyValue, ElementMonthlyRecord
 import os
 
+state_cols = [(0, 2), (3, 50)]
+state_names = ['name', 'state']
 
-class Parser:
+station_cols = [(0, 11), (12, 20), (21, 30), (31, 37), (38, 40), (41, 71), (72, 75), (76, 79), (80, 85)]
 
-    @staticmethod
-    def read_states(filepath):
-        states = []
 
-        if not os.path.exists(filepath):
-            print('File (path=' + filepath + ') does not exist.')
-            return states
+def read_states(filepath):
+    states = []
 
-        file = open(filepath, 'r')
-        try:
-            for line in file:
-                abbrev = line[:2]
-                name = line[3:].rstrip()
-                state = State(abbrev, name)
-                states.append(state)
-        finally:
-            file.close()
-
+    if not os.path.exists(filepath):
+        print('File (path=' + filepath + ') does not exist.')
         return states
 
-    @staticmethod
-    def read_states_df(filepath):
-        states = []
+    file = open(filepath, 'r')
+    try:
+        for line in file:
+            abbrev = line[state_cols[0][0]:state_cols[0][1]]
+            name = line[state_cols[1][0]:state_cols[1][1]].rstrip()
+            state = State(abbrev, name)
+            states.append(state)
+    finally:
+        file.close()
 
-        if not os.path.exists(filepath):
-            print('File (path=' + filepath + ') does not exist.')
-            return None
+    return states
 
-        cols = [(0, 2), (3, 50)]
-        df = pandas.read_fwf(filepath, skiprows=36, skipfooter=5, colspecs=cols, index_col=False,
-             names=['name', 'state'])
-        return df
 
-    @staticmethod
-    def read_stations_df(source_path):
-        if not os.path.exists(source_path):
-            print('File (path=' + source_path + ') does not exist.')
-            return None
+def read_states_df(filepath):
+    if not os.path.exists(filepath):
+        print('File (path=' + filepath + ') does not exist.')
+        return None
 
-        cols = [(0, 11), (12, 20), (21, 30), (31, 37), (38, 40), (41, 71), (41, -1)]
-        df = pandas.read_fwf(source_path, skiprows=36, skipfooter=5, colspecs=cols, index_col=False,
-             names=['station_id', 'lat', 'lon', 'elev', 'state', 'name'])
-        return df
+    df = pandas.read_fwf(filepath, skiprows=36, skipfooter=5, colspecs=state_cols, index_col=False, names=state_names)
+    return df
 
-    @staticmethod
-    def read_stations(source_path):
-        stations = []
 
-        if not os.path.exists(source_path):
-            print('File (path=' + source_path + ') does not exist.')
-            return stations
+def read_stations(source_path):
+    station_list = []
 
-        file = open(source_path, 'r')
-        try:
-            for line in file:
-                station_id = line[0:11]
-                lat = float(line[12:20])
-                lon = float(line[21:30])
-                elev = float(line[31:37])
-                if elev == -999.9:
-                    elev = None
-                state = line[38:40].strip()
-                if not state:
-                    state = None
-                name = line[41:71].strip()
-                gsn = line[72:75].strip()
-                if not gsn:
-                    gsn = None
-                network = line[76:79].strip()
-                network_enum = ClimateNetwork.NONE
-                if network == "HCN":
-                    network_enum = ClimateNetwork.HCN
-                elif network == "CRN":
-                    network_enum = ClimateNetwork.CRN
-                else:
-                    network_enum.NONE
-                wmo_id = line[80:85].strip()
-                if not wmo_id:
-                    wmo_id = None
-                station = Station(station_id, lat, lon, elev, state, name, gsn, network_enum, wmo_id)
-                stations.append(station)
-        finally:
-            file.close()
-        return stations
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return station_list
 
-    @staticmethod
-    def parse_countries(source_path):
-        countries = []
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            station_id = line[station_cols[0][0]:station_cols[0][1]]
+            lat = float(line[station_cols[1][0]:station_cols[1][1]])
+            lon = float(line[station_cols[2][0]:station_cols[2][1]])
+            elev = float(line[station_cols[3][0]:station_cols[3][1]])
+            if elev == -999.9:
+                elev = None
+            state = line[station_cols[4][0]:station_cols[4][1]].strip()
+            if not state:
+                state = None
+            name = line[station_cols[5][0]:station_cols[5][1]].strip()
+            gsn = line[station_cols[6][0]:station_cols[6][1]].strip()
+            if not gsn:
+                gsn = None
+            network = line[station_cols[7][0]:station_cols[7][1]].strip()
+            network_enum = ClimateNetwork.NONE
+            if network == "HCN":
+                network_enum = ClimateNetwork.HCN
+            elif network == "CRN":
+                network_enum = ClimateNetwork.CRN
+            else:
+                network_enum.NONE
+            wmo_id = line[station_cols[8][0]:station_cols[8][1]].strip()
+            if not wmo_id:
+                wmo_id = None
+            station = Station(station_id, lat, lon, elev, state, name, gsn, network_enum, wmo_id)
+            station_list.append(station)
+    finally:
+        file.close()
+    return station_list
 
-        if not os.path.exists(source_path):
-            print('File (path=' + source_path + ') does not exist.')
-            return countries
 
-        file = open(source_path, 'r')
-        try:
-            for line in file:
-                abbrev = line[:2]
-                name = line[3:].rstrip()
-                cty = Country(abbrev, name)
-                countries.append(cty)
-        finally:
-            file.close()
+def read_stations_df(source_path):
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
+        return None
+
+    cols = [(0, 11), (12, 20), (21, 30), (31, 37), (38, 40), (41, 71), (41, -1)]
+    df = pandas.read_fwf(source_path, skiprows=36, skipfooter=5, colspecs=cols, index_col=False,
+         names=['station_id', 'lat', 'lon', 'elev', 'state', 'name'])
+    return df
+
+
+def read_countries(source_path):
+    countries = []
+
+    if not os.path.exists(source_path):
+        print('File (path=' + source_path + ') does not exist.')
         return countries
 
+    file = open(source_path, 'r')
+    try:
+        for line in file:
+            abbrev = line[:2]
+            name = line[3:].rstrip()
+            cty = Country(abbrev, name)
+            countries.append(cty)
+    finally:
+        file.close()
+    return countries
 
-def parse_inventory(source_path):
+
+def read_inventory(source_path):
     inventories = []
 
     if not os.path.exists(source_path):
@@ -136,7 +134,7 @@ def parse_inventory(source_path):
     return inventories
 
 
-def parse_station_sources(source_path):
+def read_station_sources(source_path):
     stations = []
 
     if not os.path.exists(source_path):

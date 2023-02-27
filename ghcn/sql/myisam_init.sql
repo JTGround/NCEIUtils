@@ -1,13 +1,13 @@
 
 CREATE TABLE states (
     code CHAR(2) NOT NULL,
-    name VARCHAR(47) NOT NULL,
+    name VARCHAR(47) UNIQUE NOT NULL,
     PRIMARY KEY(code)
 ) ENGINE=MYISAM;
 
 CREATE TABLE countries (
     code CHAR(2) NOT NULL,
-    name VARCHAR(61) NOT NULL,
+    name VARCHAR(61) UNIQUE NOT NULL,
     PRIMARY KEY(code)
 ) ENGINE=MYISAM;
 
@@ -19,11 +19,10 @@ CREATE TABLE stations (
     state CHAR(2),
     name VARCHAR(30) NOT NULL,
     gsn_flag BOOLEAN NOT NULL,
-    hcn_crn_flag CHAR(3),
+    hcn_crn_flag ENUM('HCN','CRN'),
     wmo_id DECIMAL(5,0),
     PRIMARY KEY(id)
 ) ENGINE=MYISAM;
-
 
 CREATE TABLE inventory (
     id INTEGER AUTO_INCREMENT NOT NULL,
@@ -33,25 +32,24 @@ CREATE TABLE inventory (
     element CHAR(4) NOT NULL,
     first_year INTEGER NOT NULL,
     last_year INTEGER NOT NULL,
-    PRIMARY KEY(id)
-) ENGINE=MYISAM;
-
-CREATE TABLE record_values (
-    id INTEGER AUTO_INCREMENT NOT NULL,
-    `value` INTEGER NOT NULL,
-    mflag CHAR(1),
-    qflag CHAR(1),
-    sflag CHAR(1),
-    PRIMARY KEY(id)
+    PRIMARY KEY(id),
+    INDEX (station_id),
+    INDEX (element)
 ) ENGINE=MYISAM;
 
 CREATE TABLE daily_records (
     id INTEGER AUTO_INCREMENT NOT NULL,
     station_id CHAR(11) NOT NULL,
-    record_date INTEGER NOT NULL,
-    element_id INTEGER NOT NULL,
-    value_id INTEGER NOT NULL,
-    PRIMARY KEY(id)
+    record_date DATE NOT NULL,
+    element CHAR(4) NOT NULL,
+    record_value INTEGER NOT NULL,
+    mflag CHAR(1),
+    qflag CHAR(1),
+    sflag CHAR(1),
+    PRIMARY KEY(id),
+    INDEX (station_id),
+    INDEX (record_date),
+    INDEX (element)
 ) ENGINE=MYISAM;
 
 

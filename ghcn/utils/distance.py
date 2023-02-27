@@ -1,18 +1,17 @@
+
+# returns distance in km
 import math
 
-from ghcn.base_types import Station
-
-
-
 def get_closest(stations, lat, lon):
-    short_station = Station()
-    shortdist = 10000
+    short_station = stations[0]
+    short_dist = 10000
     for k, v in stations.items():
         dist = calc_dist(lat, lon, v.lat, v.lon)
-        if dist < shortdist:
-            shortdist = dist
+        if dist < short_dist:
+            short_dist = dist
             short_station = v
     return short_station
+
 
 def get_dist_state(stations, state):
     distances = []
@@ -42,7 +41,6 @@ def get_short_dist(stations):
     return shortdist
 
 
-# returns distance in km
 def calc_dist(lat1, lon1, lat2, lon2):
     R = 6371
     lat1int = float(lat1)

@@ -1,4 +1,4 @@
-from ghcn.base_types import ElementDailyRecord
+from ghcn.types.records import ElementDailyRecord
 
 
 def convert_monthly_to_daily_record(monthly_records):

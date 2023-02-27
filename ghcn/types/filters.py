@@ -1,4 +1,4 @@
-from util.distance import calc_dist
+from ghcn.utils.distance import calc_dist
 
 
 def within_state(state):

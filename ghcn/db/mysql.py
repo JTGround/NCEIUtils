@@ -52,31 +52,38 @@ class MySqlReader:
         conn = connector.connect(**conn_config)
         cursor = conn.cursor()
 
-        for station in stations:
-            insert_sql = ("INSERT INTO stations "
-                          "(id, lat, lon, elevation, state, name, gsn_flag, hcn_crn_flag, wmo_id) "
-                          "VALUES (%(id)s, %(lat)s, %(lon)s, %(elevation)s, %(state)s, %(name)s, %(gsn_flag)s, %(hcn_crn_flag)s, %(wmo_id)s)")
+        batch_size = 20
+        for i in range(0, len(stations), batch_size):
+            station_range = stations[i:i + batch_size]
 
-            gsn_flag_value = False
-            if station.gsn is not None:
-                gsn_flag_value = True
+            many_values = []
+            for station in station_range:
 
-            hcn_crn_flag_value = station.network.value
-            if hcn_crn_flag_value == 'NONE':
-                hcn_crn_flag_value = None
+                gsn_flag_value = False
+                if station.gsn is not None:
+                    gsn_flag_value = True
 
-            insert_values = {
-                'id': station.station_id,
-                'lat': station.lat,
-                'lon': station.lon,
-                'elevation': station.elev,
-                'state': station.state,
-                'name': station.name,
-                'gsn_flag': gsn_flag_value,
-                'hcn_crn_flag': hcn_crn_flag_value,
-                'wmo_id': station.wmo_id,
-            }
-            cursor.execute(insert_sql, insert_values)
+                hcn_crn_flag_value = station.network.value
+                if hcn_crn_flag_value == 'NONE':
+                    hcn_crn_flag_value = None
+
+                insert_values = (
+                    station.station_id,
+                    station.lat,
+                    station.lon,
+                    station.elev,
+                    station.state,
+                    station.name,
+                    gsn_flag_value,
+                    hcn_crn_flag_value,
+                    station.wmo_id,
+                )
+                many_values.append(insert_values)
+
+            insert_sql = """INSERT INTO stations 
+                          (id, lat, lon, elevation, state, name, gsn_flag, hcn_crn_flag, wmo_id)
+                          VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) """
+            cursor.executemany(insert_sql, many_values)
             conn.commit()
 
         cursor.close()
